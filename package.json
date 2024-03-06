@@ -1,6 +1,6 @@
 {
     "name": "",
-    "version": "0.0.9",
+    "version": "0.0.10",
     "private": false,
     "repository": "https://github.com/dopt/ai-javascript-client",
     "main": "./index.js",
