@@ -4,10 +4,10 @@
 
 import * as environments from "../../../../environments";
 import * as core from "../../../../core";
-import * as DoptApi from "../../..";
-import * as serializers from "../../../../serialization";
+import * as DoptApi from "../../../index";
+import * as serializers from "../../../../serialization/index";
 import urlJoin from "url-join";
-import * as errors from "../../../../errors";
+import * as errors from "../../../../errors/index";
 import { Completions } from "../resources/completions/client/Client";
 
 export declare namespace Assistant {
@@ -32,41 +32,15 @@ export class Assistant {
      * @throws {@link DoptApi.InternalServerError}
      *
      * @example
+     *     await doptApi.assistant.search("sid", {
+     *         userIdentifier: "userIdentifier"
+     *     })
+     *
+     * @example
      *     await doptApi.assistant.search("string", {
      *         userIdentifier: "string",
-     *         context: {
-     *             document: {
-     *                 type: "document",
-     *                 value: {
-     *                     url: "string",
-     *                     title: "string",
-     *                     width: 1.1,
-     *                     height: 1.1
-     *                 }
-     *             },
-     *             visual: {
-     *                 type: "visual",
-     *                 value: "string"
-     *             },
-     *             element: {
-     *                 type: "element",
-     *                 value: {
-     *                     position: {
-     *                         top: 1.1,
-     *                         left: 1.1
-     *                     },
-     *                     content: "string",
-     *                     tag: "string"
-     *                 }
-     *             },
-     *             semantic: {
-     *                 type: "semantic",
-     *                 value: {
-     *                     semanticContent: "string",
-     *                     neighboringSemanticContent: "string"
-     *                 }
-     *             }
-     *         }
+     *         groupIdentifier: "string",
+     *         model: "string"
      *     })
      */
     public async search(
@@ -75,7 +49,7 @@ export class Assistant {
         requestOptions?: Assistant.RequestOptions
     ): Promise<DoptApi.SearchResponseItem[]> {
         const { userIdentifier, groupIdentifier, model, ..._body } = request;
-        const _queryParams: Record<string, string | string[]> = {};
+        const _queryParams: Record<string, string | string[] | object | object[]> = {};
         _queryParams["userIdentifier"] = userIdentifier;
         if (groupIdentifier != null) {
             _queryParams["groupIdentifier"] = groupIdentifier;
@@ -92,12 +66,12 @@ export class Assistant {
             ),
             method: "POST",
             headers: {
-                "x-api-key": await core.Supplier.get(this._options.apiKey),
                 "X-Fern-Language": "JavaScript",
                 "X-Fern-SDK-Name": "",
-                "X-Fern-SDK-Version": "0.0.10",
+                "X-Fern-SDK-Version": "0.1.1",
                 "X-Fern-Runtime": core.RUNTIME.type,
                 "X-Fern-Runtime-Version": core.RUNTIME.version,
+                ...(await this._getCustomAuthorizationHeaders()),
             },
             contentType: "application/json",
             queryParameters: _queryParams,
@@ -151,5 +125,10 @@ export class Assistant {
 
     public get completions(): Completions {
         return (this._completions ??= new Completions(this._options));
+    }
+
+    protected async _getCustomAuthorizationHeaders() {
+        const apiKeyValue = await core.Supplier.get(this._options.apiKey);
+        return { "x-api-key": apiKeyValue };
     }
 }
